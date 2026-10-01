@@ -1,24 +1,38 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
 
-// No head() here: the home route inherits title/description/og/twitter from
-// __root.tsx, and ships no og:image so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
 export const Route = createFileRoute("/")({
+  head: () => ({
+    meta: [
+      { title: "30-Day Transformation — Plan, Execute, Record, Review" },
+      { name: "description", content: "A private planner and tracker for a 30-day personal transformation: calendar, habits, training, study, Hifz, reading and journal." },
+      { property: "og:title", content: "30-Day Transformation" },
+      { property: "og:description", content: "Plan tomorrow, record today, review honestly. A calm private tracker for 30 days of change." },
+    ],
+  }),
   component: Index,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
 function Index() {
+  const navigate = useNavigate();
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      if (data.session) navigate({ to: "/calendar", replace: true });
+    });
+  }, [navigate]);
+
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
-    </div>
+    <main className="flex min-h-screen flex-col items-center justify-center bg-background px-6 text-center">
+      <p className="text-xs font-semibold uppercase tracking-[0.25em] text-primary">Plan · Execute · Record · Review · Adjust</p>
+      <h1 className="mt-6 max-w-2xl font-display text-5xl leading-tight text-foreground sm:text-6xl">30-Day Transformation</h1>
+      <p className="mt-5 max-w-md text-muted-foreground">
+        Plan tomorrow tonight. Record what actually happened. Review without judgment, and adjust.
+      </p>
+      <Button asChild size="lg" className="mt-10 rounded-full px-8">
+        <Link to="/auth">Sign in to begin</Link>
+      </Button>
+    </main>
   );
 }
