@@ -22,13 +22,16 @@ export function fmtMinutes(m: number) {
 
 export function fmtTime(t?: string | null) {
   if (!t) return "";
-  const [h, m] = t.split(":").map(Number);
+  const [h = 0, m = 0] = t.split(":").map(Number);
   const ap = h >= 12 ? "pm" : "am";
   return `${((h + 11) % 12) + 1}:${String(m).padStart(2, "0")}${ap}`;
 }
 
 export function timeToMin(t?: string | null) {
   if (!t) return 0;
-  const [h, m] = t.split(":").map(Number);
+  const [h = 0, m = 0] = t.split(":").map(Number);
   return h * 60 + m;
 }
+
+export const hhmm = (t?: string | null) => (t ? t.slice(0, 5) : "");
+export const nowHHMM = () => new Date().toTimeString().slice(0, 5);
