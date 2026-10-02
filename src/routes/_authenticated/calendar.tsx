@@ -270,7 +270,7 @@ function QuickActions({ date }: { date: string }) {
         <button onClick={() => scroll("hifz")} className={btn}><span className="font-display text-lg leading-5 text-chart-3">۞</span>Hifz</button>
         <button onClick={() => scroll("reading")} className={btn}><CheckSquare className="h-5 w-5 text-chart-2" />Reading</button>
         <button onClick={() => scroll("abstain")} className={btn}><span className="text-lg leading-5 text-destructive">●</span>Distraction</button>
-        <Link to="/journal" search={{ date }} className={btn}><NotebookPen className="h-5 w-5 text-chart-5" />Journal</Link>
+        <Link to="/journal" className={btn}><NotebookPen className="h-5 w-5 text-chart-5" />Journal</Link>
       </div>
     </Panel>
   );
