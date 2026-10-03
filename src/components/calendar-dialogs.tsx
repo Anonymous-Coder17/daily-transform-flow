@@ -83,7 +83,7 @@ export function EventDialog({ draft, onClose }: { draft: EventDraft | null; onCl
   );
 }
 
-export function ActualDialog({ target, onClose }: { target: { event: CalEvent; date: string; actual?: EventActual } | null; onClose: () => void }) {
+export function ActualDialog({ target, onClose }: { target: { event: CalEvent; date: string; actual?: EventActual | undefined } | null; onClose: () => void }) {
   const { upsert, remove } = useCrud("event_actuals");
   const [status, setStatus] = useState("done");
   const [start, setStart] = useState("");

@@ -17,10 +17,14 @@ import { cn } from "@/lib/utils";
 type View = "day" | "week" | "month";
 
 export const Route = createFileRoute("/_authenticated/calendar")({
-  validateSearch: (s: Record<string, unknown>): { date?: string; view?: View } => ({
-    date: typeof s.date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(s.date) ? s.date : undefined,
-    view: s.view === "week" || s.view === "month" ? s.view : undefined,
-  }),
+  validateSearch: (s: Record<string, unknown>) => {
+    const d = s["date"];
+    const v = s["view"];
+    return {
+      date: typeof d === "string" && /^\d{4}-\d{2}-\d{2}$/.test(d) ? d : undefined,
+      view: v === "week" || v === "month" ? (v as View) : undefined,
+    };
+  },
   head: () => ({
     meta: [
       { title: "Calendar — 30-Day Transformation" },
@@ -48,7 +52,7 @@ function CalendarPage() {
 
   const [eventDraft, setEventDraft] = useState<EventDraft | null>(null);
   const [taskDraft, setTaskDraft] = useState<TaskDraft | null>(null);
-  const [actualTarget, setActualTarget] = useState<{ event: CalEvent; date: string; actual?: EventActual } | null>(null);
+  const [actualTarget, setActualTarget] = useState<{ event: CalEvent; date: string; actual?: EventActual | undefined } | null>(null);
 
   const events = useRows<CalEvent>("calendar_events", (b) => b.order("start_time"));
   const { challenge, length } = useChallenge();
@@ -111,7 +115,7 @@ function CalendarPage() {
 function DayView({ date, events, isFuture, onAdd, onEdit, onRecord, onTask }: {
   date: string; events: CalEvent[]; isFuture: boolean;
   onAdd: (d?: Partial<CalEvent>) => void; onEdit: (e: CalEvent) => void;
-  onRecord: (e: CalEvent, a?: EventActual) => void; onTask: (t: TaskDraft) => void;
+  onRecord: (e: CalEvent, a?: EventActual | undefined) => void; onTask: (t: TaskDraft) => void;
 }) {
   const today = todayStr();
   const list = eventsOn(events, date);
@@ -308,7 +312,7 @@ function WeekView({ date, events, onPick }: { date: string; events: CalEvent[]; 
   );
 }
 
-function MonthView({ date, events, onPick, challengeStart, challengeEnd }: { date: string; events: CalEvent[]; onPick: (d: string) => void; challengeStart?: string; challengeEnd?: string }) {
+function MonthView({ date, events, onPick, challengeStart, challengeEnd }: { date: string; events: CalEvent[]; onPick: (d: string) => void; challengeStart?: string | undefined; challengeEnd?: string | undefined }) {
   const first = ymd(startOfMonth(parse(date)));
   const last = ymd(endOfMonth(parse(date)));
   const gridStart = weekStart(first);
