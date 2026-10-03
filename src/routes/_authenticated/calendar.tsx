@@ -17,12 +17,12 @@ import { cn } from "@/lib/utils";
 type View = "day" | "week" | "month";
 
 export const Route = createFileRoute("/_authenticated/calendar")({
-  validateSearch: (s: Record<string, unknown>) => {
+  validateSearch: (s: Record<string, unknown>): { date?: string; view?: View } => {
     const d = s["date"];
     const v = s["view"];
     return {
-      date: typeof d === "string" && /^\d{4}-\d{2}-\d{2}$/.test(d) ? d : undefined,
-      view: v === "week" || v === "month" ? (v as View) : undefined,
+      ...(typeof d === "string" && /^\d{4}-\d{2}-\d{2}$/.test(d) ? { date: d } : {}),
+      ...(v === "week" || v === "month" ? { view: v } : {}),
     };
   },
   head: () => ({
@@ -48,7 +48,7 @@ function CalendarPage() {
   const navigate = useNavigate({ from: "/calendar" });
   const date = search.date ?? todayStr();
   const view: View = search.view ?? "day";
-  const go = (d: string, v: View = view) => navigate({ search: { date: d === todayStr() ? undefined : d, view: v === "day" ? undefined : v } });
+  const go = (d: string, v: View = view) => navigate({ to: ".", search: { ...(d === todayStr() ? {} : { date: d }), ...(v === "day" ? {} : { view: v }) } });
 
   const [eventDraft, setEventDraft] = useState<EventDraft | null>(null);
   const [taskDraft, setTaskDraft] = useState<TaskDraft | null>(null);
