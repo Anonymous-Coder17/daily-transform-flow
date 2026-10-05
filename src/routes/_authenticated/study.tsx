@@ -64,12 +64,12 @@ function Timer() {
     const raw = localStorage.getItem(KEY);
     if (raw) { const s = JSON.parse(raw) as TimerState; setState(s); setSubject(s.subject); setTopic(s.topic); }
   }, []);
-  useEffect(() => { if (!state) return; const t = setInterval(() => setNow(Date.now()), 1000); return () => clearInterval(t); }, [state]);
+  useEffect(() => { if (!state) return undefined; const t = setInterval(() => setNow(Date.now()), 1000); return () => clearInterval(t); }, [state]);
   const elapsed = state ? Math.floor((now - state.start) / 1000) : 0;
   const clock = `${String(Math.floor(elapsed / 3600)).padStart(2, "0")}:${String(Math.floor((elapsed % 3600) / 60)).padStart(2, "0")}:${String(elapsed % 60).padStart(2, "0")}`;
 
   function start() {
-    if (!subject) return toast.error("Choose a subject first");
+    if (!subject) { toast.error("Choose a subject first"); return; }
     const s = { start: Date.now(), subject, topic };
     localStorage.setItem(KEY, JSON.stringify(s)); setState(s); setNow(Date.now());
   }
@@ -106,7 +106,7 @@ function Manual({ date }: { date: string }) {
   const [notes, setNotes] = useState("");
   const { insert } = useCrud("study_sessions");
   function add() {
-    if (!subject || !Number(mins)) return toast.error("Subject and minutes are required");
+    if (!subject || !Number(mins)) { toast.error("Subject and minutes are required"); return; }
     insert.mutate({ subject_id: subject, topic_id: topic || null, session_date: date, duration_minutes: Number(mins), notes: notes || null, source: "manual" }, { onSuccess: () => { setMins(""); setNotes(""); toast.success("Session added"); } });
   }
   return (
