@@ -156,7 +156,7 @@ function ProgressiveLogger({ workout, date }: { workout: Workout; date: string }
     if (!current) return;
     await db.from("workout_sets").delete().eq("session_id", current.id);
     const { error } = await db.from("workout_sessions").delete().eq("id", current.id);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     ["workout_sessions", "workout_sets"].forEach((t) => qc.invalidateQueries({ queryKey: [t] }));
     toast.success("Session removed");
   }
