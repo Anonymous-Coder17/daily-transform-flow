@@ -27,7 +27,8 @@ function Page() {
   const t = todayStr();
   const days = range(start, length);
   const past = days.filter((d) => d <= t);
-  const r = (b: ReturnType<typeof Object>, col: string) => b.gte(col, start).lte(col, end);
+  type RB = { gte: (c: string, v: string) => { lte: (c: string, v: string) => unknown } };
+  const r = (b: RB, col: string) => b.gte(col, start).lte(col, end);
   const k = [start, end];
 
   const habits = useRows<Habit>("habits", (b) => b.eq("archived", false).order("sort")).data ?? [];
