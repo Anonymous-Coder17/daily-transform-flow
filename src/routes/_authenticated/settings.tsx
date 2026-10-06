@@ -13,6 +13,7 @@ import type { Tables } from "@/integrations/supabase/types";
 import { useTheme, type Theme } from "@/lib/theme";
 import { pretty, todayStr } from "@/lib/dates";
 import { cn } from "@/lib/utils";
+import { useInstall } from "@/lib/install";
 
 export const Route = createFileRoute("/_authenticated/settings")({
   head: () => ({ meta: [{ title: "Settings — 30-Day Transformation" }, { name: "description", content: "Challenge, trackers, theme, integrations and export." }, { property: "og:title", content: "Settings — 30-Day Transformation" }, { property: "og:description", content: "Challenge, trackers, theme, integrations and export." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
@@ -35,7 +36,7 @@ function Page() {
         <TabsContent value="trackers" className="space-y-4"><HabitManager /><AbstainManager /><LimitManager /></TabsContent>
         <TabsContent value="training" className="space-y-4"><ScheduleEditor /><WorkoutManager /></TabsContent>
         <TabsContent value="study" className="space-y-4"><SubjectManager /><BookManager /></TabsContent>
-        <TabsContent value="app" className="space-y-4"><ThemePicker /><Integrations /><Export /></TabsContent>
+        <TabsContent value="app" className="space-y-4"><InstallCard /><ThemePicker /><Integrations /><Export /></TabsContent>
       </Tabs>
     </>
   );
@@ -125,6 +126,30 @@ function Export() {
     <Panel title="Export data">
       <p className="mb-3 text-sm text-muted-foreground">Download everything you've recorded as a JSON file.</p>
       <Button variant="outline" onClick={run} disabled={busy}><Download className="mr-1 h-4 w-4" />{busy ? "Preparing…" : "Export JSON"}</Button>
+    </Panel>
+  );
+}
+
+function InstallCard() {
+  const { ready, installed, canPrompt, platform, prompt } = useInstall();
+  if (!ready) return null;
+  if (installed) return <Panel title="App"><p className="text-sm text-muted-foreground">You're using the installed app.</p></Panel>;
+  const guide: Record<string, string> = {
+    "mac-safari": "In Safari, choose File → Add to Dock (macOS Sonoma or later). It opens in its own window.",
+    ios: "In Safari, tap the Share button, then “Add to Home Screen”.",
+    android: "Open Chrome's ⋮ menu and choose “Install app” or “Add to Home screen”.",
+    chromium: "Use the install icon in the address bar, or the browser menu → “Install 30-Day Transformation”.",
+    firefox: "Firefox can't install web apps. Open this site in Chrome, Edge or Safari to install it.",
+    other: "Use your browser's menu to add this app to your home screen or dock.",
+  };
+  return (
+    <Panel title="Install app">
+      <p className="mb-3 text-sm text-muted-foreground">Open the tracker in its own window, like a native app.</p>
+      {canPrompt ? (
+        <Button onClick={async () => { if (await prompt()) toast.success("Installing…"); }}><Download className="mr-1 h-4 w-4" />Install app</Button>
+      ) : (
+        <p className="text-sm">{guide[platform]}</p>
+      )}
     </Panel>
   );
 }
